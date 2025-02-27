@@ -1,0 +1,33 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="loader.css">
+<script src="https://kit.fontawesome.com/8aa17a250d.js" crossorigin="anonymous"></script>
+<style>
+    .faltu { height: 180px; width: 100%; background: #1561a0; }
+    .greeting { border-bottom: 1px solid #eee; display: flex; align-items: center; justify-content: center; flex-direction: column; margin: -60px 0 0 0; height: 18%; }
+    .greeting > img { width: 90px; border-radius: 125px; border: 2px solid #fff; box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px; }
+    .username { font-size: 22px; font-weight: 600; margin: 10px 0 0 0; }
+    .visa { display: none;}
+    .btn { display: flex; align-items: center; gap: 10px; padding: 20px 10px; font-weight: 300; font-size: 20px; text-decoration: none; color: #000; border-bottom: 1px solid #eee; }
+</style>
+<div class="faltu"></div>
+<div class="greeting" id="nameuser"></div>
+<div class="buttons">
+    <a href="index.html" class="btn"><i class="fa-solid fa-house"></i> Home</a>
+    <a href="" class="btn"><i class="fa-brands fa-telegram"></i> Telegram</a>
+    <a href="coins.html" class="btn"><i class="fa-solid fa-wallet"></i> Wallet</a>
+    <a href="mailto:fromushoot@gmail.com" class="btn"><i class="fa-solid fa-envelope"></i> Contact</a>
+    <a href="purchased.html" class="btn"><i class="fa-solid fa-bag-shopping"></i> Purchased</a>
+    <a id="logoutBtn" class="btn"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+</div>
+<script>
+    if (!localStorage.getItem("u_local")) {
+        window.location.href = "login.html";
+    }
+    document.getElementById("logoutBtn").addEventListener("click", function() {
+        localStorage.removeItem("u_local");
+        window.location.href = "login.html";
+    });
+</script>
+<script src="profile.js"></script>

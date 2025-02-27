@@ -1,0 +1,125 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" type="text/css" href="loader.css">
+<link rel="stylesheet" type="text/css" href="style.css">
+<style>
+  .image > img { width: 38vh; }
+  #registrationForm { padding: 0px 20px; display: flex; flex-direction: column; }
+  #registrationForm > h2 { font-size: 32px; font-weight: 400; }
+  #registrationForm > p { font-weight: 500; }
+  .image { display: flex; align-items: center; justify-content: center; margin: 50px 0px 0px 0px; }
+  .form-group { display: flex; gap: 10px; flex-direction: column; margin: 20px 0px 10px 0px; }
+  .link { text-align: center; }
+  .form-group > input { padding: 8px 15px; background: #1f1f1f1f; border: none; border-radius: 125px; outline: none; font-size: 16px; }
+  .form-group > button { padding: 8px; border-radius: 125px; border: none; background: #1561a0; color: #fff; font-weight: 600; font-size: 16px; }
+  .link > a { color: #1561a0; text-decoration: none; font-weight: 700; }
+  #loader , #otpSection { display: none; }
+  .total { display: flex; justify-content: center; flex-direction: column; }
+</style>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<div id="loader">
+    <div class="loader"></div>
+</div>
+<div class="total">
+    <div class="image">
+        <img src="https://i.ibb.co/M5hLtYzk/signup.png">
+    </div>
+<form id="registrationForm" onsubmit="return false;">
+    <h2>Register</h2>
+    <p>Please Register To Join</p>
+    <div class="form-group">
+        <input type="text" id="name" placeholder="Name: " required>
+        <input type="email" id="email" placeholder="Email: " required>
+        <input type="number" id="mobile" placeholder="Mobile Number: " required>
+        <input type="password" id="password" placeholder="Password: " required>
+        <button onclick="generateOtp()">Get OTP</button>
+    </div>
+    
+    <div id="otpSection">
+        <div class="form-group" style="">
+            <input type="text" id="otp" placeholder="Enter OTP: " required>
+            <button onclick="verifyOtp()">Join</button>
+        </div>
+    </div>
+    <p class="link">Already Have Account? <a href="login.html"> Click Here</a></p>
+</form>
+</div>
+<script>
+    const DEPLOY_URL = 'https://script.google.com/macros/s/AKfycbxM10WUagGd6S_nxpdQuALpanK-MkA6Qc_MfolV46LtHIcBY9ZjxK7R1MMwBbPCIWiF/exec';
+
+    if (localStorage.getItem('u_local')) {
+        window.location.href = 'index.html';
+    }
+
+    function showLoader() {
+        document.getElementById('loader').style.display = 'flex';
+    }
+
+    function hideLoader() {
+        document.getElementById('loader').style.display = 'none';
+    }
+
+    async function generateOtp() {
+        const email = document.getElementById('email').value;
+        if (!email) {
+            alert('Please enter email');
+            return;
+        }
+
+        showLoader();
+        try {
+            const response = await fetch(DEPLOY_URL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    action: 'generateOtp',
+                    email: email
+                })
+            });
+
+            const data = await response.json();
+            if (data.status === 'success') {
+                document.getElementById('otpSection').style.display = 'block';
+                alert('OTP sent to your email');
+            } else {
+                alert(data.message || 'Failed to send OTP');
+            }
+        } catch (error) {
+            alert('Error generating OTP');
+        } finally {
+            hideLoader();
+        }
+    }
+
+    async function verifyOtp() {
+        const email = document.getElementById('email').value;
+        const formData = {
+            action: 'verifyAndSubmit',
+            name: document.getElementById('name').value,
+            email: email,
+            mobile: document.getElementById('mobile').value,
+            password: document.getElementById('password').value,
+            otp: document.getElementById('otp').value
+        };
+
+        showLoader();
+        try {
+            const response = await fetch(DEPLOY_URL, {
+                method: 'POST',
+                body: JSON.stringify(formData)
+            });
+
+            const data = await response.json();
+            if (data.status === 'success') {
+                localStorage.setItem('u_local', email);
+                alert('Registration successful!');
+                window.location.href = 'index.html';
+            } else {
+                alert(data.message || 'Invalid OTP');
+            }
+        } catch (error) {
+            alert('Error verifying OTP');
+        } finally {
+            hideLoader();
+        }
+    }
+</script>

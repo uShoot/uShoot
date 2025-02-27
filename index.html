@@ -1,0 +1,58 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://kit.fontawesome.com/8aa17a250d.js" crossorigin="anonymous"></script>
+<link rel="stylesheet" type="text/css" href="style.css">
+<link rel="stylesheet" type="text/css" href="loader.css">
+<style>
+    .item { display: flex; flex-direction: column-reverse; align-items: center; width: calc(45% - 10px); border-radius: 12px; border: none; background: #206667; box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 2px 6px 2px; }
+    #items-container , .last-line { display: flex; flex-wrap: wrap; justify-content: space-evenly; gap: 20px 0px; }
+    .item img { width: 100%; height: 130px; object-fit: cover; }
+    .item > h3 { font-size: 14px; margin: 10px 0px; font-weight: 500; color: #eee; text-transform: uppercase; }
+    .footer > a > i { overflow: hidden; text-decoration: none; }
+    #items-container { padding: 0px 0px 35% 0px; }
+    .greeting > img { width: 45px; padding: 1.5px; border-radius: 125px; background: #fff; }
+    .greeting { display: flex; gap: 10px; align-items: center; }
+    .username { font-weight: 500; font-size: 18px; }
+    .head { background: #1561a0; display: flex; color: #fff; align-items: center; justify-content: space-between; padding: 15px 20px 5px 20px; }
+    .head > a { font-size: 30px; color: #fff; }
+    .customer-text > h3 { color: #fff; font-weight: 400; font-size: 19px; }
+    .customer-text { padding: 0px 10px; }
+    .customer-text > hr { border-top: 2px solid #fff; }
+    .header { background:#1561a0; padding: 10px 0px 30px 0px; }
+    .body { padding: 10px; background: #fff; border-radius: 25px; margin: -30px 0 0 0; }
+    .dots { text-align: center; margin-top: 10px; }
+    .dot { height: 10px; width: 10px; margin: 0 5px; display: inline-block; border: 2px solid black; border-radius: 50%; cursor: pointer; }
+    .active { background-color: black; }
+    .slide img { width: 100%; cursor: pointer; border-radius: 12px; }
+    .footer { position: fixed; bottom: 0%; display: flex; align-items: center; width: 100%; justify-content: center; }
+    .footparts > a { color: #fff; font-size: 22px; }
+    .footparts { display: flex; align-items: center; justify-content: space-around; width: 90%; gap: 150px; background: #1561a0; margin: 15px; border-radius: 125px; padding: 15px 10px; }
+</style> 
+<div class="header">
+    <div class="head">
+    <div class="greeting" id="greeting"></div>
+    <a href="coins.html"><i class="fa-solid fa-wallet"></i></a>
+</div>
+<div class="customer-text"><h3>Welcome To,</h3></div>
+    <div class="customer-text"><hr><h3>uShoot</h3><hr></div>
+</div>
+<div class="body">
+<div class="slider-container">
+    <div id="slider"></div>
+    <div class="dots" id="dots"></div>
+</div>
+<div class="customer-text"><hr style="border-top: 2px solid #000;"><h3 style="color: #000;">Searching For:</h3><hr style="border-top: 2px solid #000;"></div>
+<div id="items-container"></div>
+</div>
+<div class="footer">
+    <div class="footparts">
+        <a href="mailto:fromushoot@gmail.com"><i class="fa-solid fa-envelope"></i></a>
+        <a onclick="reload()" style="position: fixed; border: 2px solid #fff; margin: -35px 0px 0px 0px; background: #1561a0; padding: 15px; border-radius: 125px;"><i class="fa-solid fa-house"></i></a>
+        <a href="profile.html"><i class="fa-solid fa-user"></i></a>
+    </div>
+</div>
+<div id="loader">
+    <div class="loader"></div>
+</div>
+<script src="script.js"></script>  
+<script src="slider.js"></script>

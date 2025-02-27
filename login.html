@@ -1,0 +1,80 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" type="text/css" href="loader.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" type="text/css" href="style.css">
+<style>
+  .container { display: flex; justify-content: center; flex-direction: column; }
+  .image > img { width: 38vh; }
+  #loginForm { padding: 0px 20px; display: flex; flex-direction: column; }
+  #loginForm > h2 { font-size: 32px; font-weight: 400; }
+  #loginForm > p { font-weight: 500; }
+  .image { display: flex; align-items: center; justify-content: center; margin: 50px 0px 0px 0px; }
+  .form-input { display: flex; gap: 10px; flex-direction: column; margin: 20px 0px 10px 0px; }
+  .link { text-align: center; }
+  .form-input > input { padding: 8px 15px; background: #1f1f1f1f; border: none; border-radius: 125px; outline: none; font-size: 16px; }
+  .form-input > button { padding: 8px; border-radius: 125px; border: none; background: #1561a0; color: #fff; font-weight: 600; font-size: 16px; }
+  .link > a { color: #1561a0; text-decoration: none; font-weight: 700; }
+</style>
+<div class="container">
+  <div class="image">
+  <img src="https://i.ibb.co/Cp0796RD/login.png">
+</div>
+  <form id="loginForm" class="form-group">
+    <h2>Login</h2>
+    <p>Please Sign In To Continue</p>
+    <div class="form-input">
+      <input type="email" id="username" placeholder="Email: " required>
+      <input type="password" id="password" placeholder="Password: " required>
+      <button type="submit">Login</button>
+      </div>
+      <p class="link">Don't Have Account? <a href="signup.html">Click Here</a></p>
+  </form>
+</div>
+<div id="loader" style="display: none;">
+  <div class="loader"></div>
+</div>
+<script>
+  if (localStorage.getItem("u_local")) {
+    window.location.href = "index.html";
+  }
+
+  document.getElementById("loginForm").addEventListener("submit", function(event) {
+    event.preventDefault();
+    
+    var username = document.getElementById("username").value;
+    var password = document.getElementById("password").value;
+    var loader = document.getElementById("loader");
+    
+    loader.style.display = "flex";
+
+    var url = "https://script.google.com/macros/s/AKfycbzIiUKvGnyvPATi5j3sLByyGehoRc6tNryx5VhdouWqMgU8T_fCvTceZrTGVXMQl6Wm/exec";
+
+    var data = {
+      "username": username,
+      "password": password
+    };
+
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: new URLSearchParams(data)
+    })
+    .then(response => response.text())
+    .then(responseText => {
+      loader.style.display = "none";
+      if (responseText === "success") {
+        localStorage.setItem("u_local", username);
+        window.location.href = "index.html";
+      } else {
+        alert("Invalid username or password!");
+      }
+    })
+    .catch(error => {
+      loader.style.display = "none";
+      console.error('Error:', error);
+    });
+  });
+</script>

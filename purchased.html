@@ -1,0 +1,76 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://kit.fontawesome.com/8aa17a250d.js" crossorigin="anonymous"></script>
+<link rel="stylesheet" type="text/css" href="style.css">
+<link rel="stylesheet" type="text/css" href="loader.css">
+<style>
+    .header { align-items: center; display: flex; box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px; padding: 10px; justify-content: space-evenly; font-family: "Dancing Script", serif; font-size: 28px; }
+    #purchasesContainer { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
+    .purchase-card { width: 45%; display: flex; flex-direction: column; align-items: center; text-align: center; margin: 20px 0px 0px 0px; background: #206667; color: #fff; border-radius: 12px; padding: 0px 0px 20px 0px; }
+    h3 { font-size: 14px; font-weight: 500; margin: 10px 0px 0px 0px; }
+    .purchase-card img { width: 100%; height: 145px; object-fit: cover; }
+    button { margin: 10px 0px 0px 0px; padding: 5px; width: 120px; border: none; display: flex; justify-content: center; gap: 10px; align-items: center; border-radius: 125px; background: #1561a0; color: #ddd; }
+    #purchasesContainer > p { position: fixed; top: 50%; }
+</style>
+<div class="header">
+    <h4>My Purchases</h4>
+</div>
+<div id="purchasesContainer"></div>
+<div id="loader">
+    <div class="loader"></div>
+</div>
+<script>
+    const DEPLOY_URL = 'https://script.google.com/macros/s/AKfycbw8LDwU51dEUkR-mZiNNWycoKVRzQF64Rf114r5zfXr0XwcLnxajEeO5JX_LwstBszK/exec';
+    const userEmail = localStorage.getItem('u_local');
+    if (!userEmail) window.location.href = 'signup.html';
+
+    async function loadPurchases() {
+        showLoader();
+        try {
+            const response = await fetch(DEPLOY_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'getUserPurchases', email: userEmail })
+            });
+            const data = await response.json();
+            if (data.status === 'success') displayPurchases(data.purchases);
+            else console.log('Failed to load purchases');
+        } catch (error) {
+            console.log('Error loading purchases');
+        } finally {
+            hideLoader();
+        }
+    }
+
+    function displayPurchases(purchases) {
+        const container = document.getElementById('purchasesContainer');
+        container.innerHTML = purchases.length === 0 ? '<p>No purchases found</p>' :
+            purchases.map(item => `
+                <div class="purchase-card">
+                    <img src="${item.image}" alt="${item.title}">
+                    <h3>${item.title}</h3>
+                    <button onclick="sendDownloadLink('${item.id}')">Download <i class="fa-solid fa-download"></i></button>
+                </div>
+            `).join('');
+    }
+
+    async function sendDownloadLink(itemId) {
+        showLoader();
+        try {
+            const response = await fetch(DEPLOY_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'sendDownloadLink', email: userEmail, itemId })
+            });
+            const data = await response.json();
+            alert(data.status === 'success' ? 'Download link sent to your email!' : 'Failed to send download link');
+        } catch (error) {
+            alert('Error sending download link');
+        } finally {
+            hideLoader();
+        }
+    }
+
+    function showLoader() { document.getElementById('loader').style.display = 'flex'; }
+    function hideLoader() { document.getElementById('loader').style.display = 'none'; }
+
+    loadPurchases();
+</script>

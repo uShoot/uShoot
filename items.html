@@ -1,0 +1,196 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://kit.fontawesome.com/8aa17a250d.js" crossorigin="anonymous"></script>
+<link rel="stylesheet" type="text/css" href="style.css">
+<link rel="stylesheet" type="text/css" href="loader.css">
+<style>
+    h1,h2,h3,h4,h5,h6,p { margin: 0; }
+    .header { align-items: center; display: flex; box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px; padding: 10px; justify-content: space-evenly; font-family: "Dancing Script", serif; font-size: 28px; }
+    #loader, .modal-overlay { display: none; }
+    #productsContainer { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
+    .product-card { width: 45%; display: flex; flex-direction: column; align-items: center; color: #fff; text-align: center; margin: 20px 0px 0px 0px; background: #206667; border-radius: 12px; padding: 0px 0px 20px 0px; }
+    h3 { font-size: 14px; font-weight: 500; margin: 10px 10px 0px 10px; }
+    .product-card img { width: 100%; height: 145px; object-fit: cover; }
+    .btn { margin: 10px 0px 0px 0px; padding: 5px; width: 120px; border: none; display: flex; justify-content: center; gap: 10px; align-items: center; border-radius: 125px; background: #1561a0; color: #ddd; }
+    .eye { position: absolute; margin: 10px 0px 0px -32%; padding: 4px; border-radius: 50%; border: none; display: flex; align-items: center; color: #ddd; justify-content: center; background: #1561a0; overflow: hidden; }
+    #modalBody > img { width: 100%; height: 230px; object-fit: cover; }
+    #modalBody { display: flex; flex-wrap: wrap; justify-content: center; }
+    #modalBody { display: flex; flex-direction: column; align-items: center; color: #fff; background: #206667; border-radius: 25px; width: 100% }
+    .modal-overlay { position: fixed; top: 20%; align-items: center; width: 100%; justify-content: center; }
+    .close-btn { display: flex; background: #ff0000; height: 45px; width: 45px; margin: -5% 0px 0px 0px; align-items: center; justify-content: center; border-radius: 25px; font-size: 35px; border: none; color: #333; position: fixed; font-weight: 600; overflow: hidden; left: 18%; }
+    #modalBody > h2 { font-size: 20px; margin: 5px 0px 0px 0px; font-weight: 500; }
+    #modalBody > p { padding: 20px; margin: 0px 10px 20px 10px; display: flex; gap: 5px; font-weight: 400; font-size: 17px; flex-direction: column; }
+    .model-hero { display: flex; align-items: center; justify-content: center; flex-direction: column; }
+</style>
+<div class="header">
+    <h4 id="output"></h4>
+</div>
+<div id="loader">
+    <div class="loader"></div>
+</div>
+
+<div id="productsContainer"></div>
+
+<div id="modalOverlay" class="modal-overlay">
+    <div id="modalContent" class="modal-content">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        <div class="model-hero">
+        <div id="modalBody"></div>
+    </div>
+    </div>
+</div>
+
+<script>
+    let itemType = localStorage.getItem("itemType");
+    document.getElementById("output").textContent = itemType ? `${itemType}` : "No data found in localStorage!"; 
+
+    const DEPLOY_URL = 'https://script.google.com/macros/s/AKfycbzZQymZdC-zc4xlW09MFU47okUMGASLVyW8iCf1SY8uqBzCUA3SItwlTYNJF-E5n5k/exec';
+    let products = [];
+
+    const userEmail = localStorage.getItem('u_local');
+    const itemTypeStored = localStorage.getItem('itemType');
+
+    if (!userEmail) {
+        window.location.href = 'signup.html';
+    }
+
+    async function loadProducts() {
+        showLoader();
+        try {
+            const response = await fetch(DEPLOY_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'getProducts', userEmail, itemType: itemTypeStored })
+            });
+
+            const data = await response.json();
+            if (data.status === 'success') {
+                products = data.products;
+                displayProducts();
+            }
+        } catch {
+            alert('Error loading products');
+        } finally {
+            hideLoader();
+        }
+    }
+
+    function displayProducts() {
+        const container = document.getElementById('productsContainer');
+        if (products.length === 0) {
+            container.innerHTML = '<div style="text-align: center; grid-column: 1/-1; position: fixed; width: 100%; top: 50%;">No products available.</div>';
+            return;
+        }
+
+        container.innerHTML = products.map((product, index) => `
+            <div class="product-card">
+                <button onclick="showDescription(${index})" class="eye">
+                    <i class="fas fa-eye"></i>
+                </button>
+                <img src="${product.image}" alt="${product.title}" onerror="this.src='placeholder.jpg'">
+                <h3>${product.title}</h3>
+                <p class="price">₹${product.price}</p>
+                <div class="button-group">
+                    ${product.purchasedBy.includes(userEmail) 
+                        ? `<button onclick="sendDownloadLink(${index})" class="btn">
+                            <i class="fas fa-download"></i> Download
+                           </button>` 
+                        : `<button onclick="initiatePayment(${index})" class="btn">
+                            <i class="fas fa-shopping-cart"></i> Buy Now
+                           </button>`
+                    }
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function showDescription(index) {
+        const product = products[index];
+        document.getElementById('modalBody').innerHTML = `
+            <img src="${product.image}" alt="${product.title}" onerror="this.src='placeholder.jpg'">
+            <h2>${product.title}</h2>
+            <p><strong>About This Product:</strong>${product.description}</p>
+        `;
+        document.getElementById('modalOverlay').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('modalOverlay').style.display = 'none';
+    }
+
+    async function initiateCustomAlert(message) {
+        return new Promise(resolve => {
+            resolve(confirm(message));
+        });
+    }
+
+    async function initiateTransaction(productId) {
+        showLoader();
+        try {
+            const response = await fetch(DEPLOY_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'purchaseProduct', userEmail, productId })
+            });
+
+            const data = await response.json();
+            if (data.status === 'success') {
+                alert('Purchase successful!');
+                loadProducts();
+            } else {
+                alert(data.message || 'Purchase failed');
+            }
+        } catch {
+            alert('Error processing purchase');
+        } finally {
+            hideLoader();
+        }
+    }
+
+    async function sendDownloadLink(index) {
+        await initiateDownloadLink(products[index].id);
+    }
+
+    async function initiateDownloadLink(productId) {
+        showLoader();
+        try {
+            const response = await fetch(DEPLOY_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'sendDownloadLink', userEmail, productId })
+            });
+
+            const data = await response.json();
+            alert(data.status === 'success' ? 'Download link sent to your email!' : 'Failed to send download link');
+        } catch {
+            alert('Error sending download link');
+        } finally {
+            hideLoader();
+        }
+    }
+
+    async function initiatePayment(index) {
+        if (await initiateCustomAlert('Do you want to buy this product?')) {
+            await initiateTransaction(products[index].id);
+        }
+    }
+
+    function showLoader() {
+        document.getElementById('loader').style.display = 'flex';
+    }
+
+    function hideLoader() {
+        document.getElementById('loader').style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+        if (event.target === document.getElementById('modalOverlay')) {
+            closeModal();
+        }
+    }
+
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeModal();
+        }
+    });
+
+    loadProducts();
+</script>
